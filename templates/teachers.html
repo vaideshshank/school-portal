@@ -1,0 +1,18 @@
+<div id="teachers" ng-controller="teachersControl">
+    <h2>Teachers' Portal</h2>
+    <a href="" ng-click="show=true">Login</a>
+    <a href="" ng-click="show=false">Student Remarks</a>
+    <br><br>
+    <div class="login" ng-show="show">
+        <input type="text" placeholder="Username"><br>
+        <input type="password" placeholder="password"><br>
+        <button>SignIn</button>
+    </div>
+
+    <div class="student" ng-show="!show">
+        <input type="text" placeholder="Class"><br>
+        <input type="text" placeholder="Section"><br>
+        <input type="number" placeholder="Roll Number"><br>
+        <button>Submit</button>
+    </div>
+</div>

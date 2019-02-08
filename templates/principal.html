@@ -1,0 +1,23 @@
+<div id="principal">
+    <h1>Principal's Portal</h1>
+    <a href="" ng-click="show=true">Login</a>
+    <a href="" ng-click="show=false">Coordinators</a>
+    <br><br>
+    <div class="login" ng-show="show">
+        <input type="text" placeholder="Username"><br>
+        <input type="password" placeholder="password"><br>
+        <button>SignIn</button>
+    </div>
+
+    <div class="coordinators" ng-show="!show">
+        <div ng-show="part[0]">
+            <ul ng-repeat="coor in coordinator">
+                <li><a href="" ng-click="teacherInfo(this)">{{coor.teacher_name}}</a></li>
+            </ul>
+        </div>
+
+        <div ng-show="part[1]">
+            
+        </div>
+    </div>
+</div>

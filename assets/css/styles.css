@@ -1,0 +1,25 @@
+.head{
+    text-transform: uppercase;
+    text-align: center;
+    color:blue;
+}
+
+.grid1{
+    display: grid;
+    grid-template-columns: 20% auto;
+    max-width: 100%;
+}
+
+.nav{
+    background-color: green;
+    height:700px;
+}
+
+.content{
+    background-color: greenyellow;
+    height:700px;
+}
+
+#teachers{
+    font-size:25px;
+}
