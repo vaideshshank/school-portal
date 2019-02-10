@@ -5,6 +5,7 @@ url=require('url'),
 autoIncrement=require('mongoose-auto-increment'),
 app=express();
 
+var port=process.env.PORT||5000;
 
 //middlewares
 app.use(bodyParser.urlencoded({extended:false}));
@@ -287,6 +288,6 @@ app.get('/',(req,res)=>{
     res.sendFile(__dirname+'/index.html');
 })
 
-app.listen(5000,function(err){
-    console.log("Connected to 5000");
+app.listen(port,function(err){
+    console.log("Connected to "+port);
 })

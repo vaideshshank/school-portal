@@ -4,15 +4,38 @@
     <a href="" ng-click="show=false">Student Remarks</a>
     <br><br>
     <div class="login" ng-show="show">
-        <input type="text" placeholder="Username"><br>
-        <input type="password" placeholder="password"><br>
-        <button>SignIn</button>
+        <input type="text" placeholder="Teacher ID" ng-model="userID"><br>
+        <input type="password" placeholder="Password" ng-model="password"><br>
+        <button ng-click="login(userID,password)">SignIn</button>
     </div>
 
     <div class="student" ng-show="!show">
-        <input type="text" placeholder="Class"><br>
-        <input type="text" placeholder="Section"><br>
-        <input type="number" placeholder="Roll Number"><br>
-        <button>Submit</button>
+
+        <div ng-show="part[0]">
+            <h3>Classes controlled by {{loggedTeacher.teacher_name}}</h3>
+            <ul ng-repeat="class in loggedTeacher.class_ids">
+                <li><a href="" ng-click="studentInfo(class[0])">{{class[0].class}} - {{class[0].section}}</a></li>
+            </ul>
+        </div>
+        <div ng-show="part[1]">
+            <h3>Students Under {{loggedTeacher.teacher_name}} from class {{selectedClass.class}}-{{selectedClass.section}}</h3>
+            <table>
+                <tr>
+                    <th>Roll No.</th>
+                    <th>Student Name</th>
+                    <th>Remark</th>
+                    <th>Action</th>
+                </tr>
+                <tr ng-repeat="singleStudent in students | orderBy : singleStudent.roll_no">
+                    <td>{{singleStudent.roll_no}}</td>
+                    <td>{{singleStudent.student_name}}</td>
+                    <td><textarea name="" id="" cols="30" rows="3" ng-disabled="edit" ng-model="newRemark">{{singleStudent.remark[]}}</textarea></td>
+                    <td><a href="" ng-click="enableEdit()">Edit</a>&nbsp&nbsp&nbsp<a href="" ng-click="updateRemark(newRemark,singleStudent.roll_no)">Save</a></td>
+                </tr>
+            </table>
+            <button ng-click="goBack()">Back</button>
+        </div>
+        
     </div>
+
 </div>
