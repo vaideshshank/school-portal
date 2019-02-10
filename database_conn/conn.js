@@ -47,12 +47,22 @@ module.exports={
                                         },
                                         student_name: String,
                                         class_id:Number,
-                                        remark: {
-                                            type:String,
-                                            default:""
-                                        }
+                                        remark: Array
                                     }))
-                                }
+                                },
+
+    loginModel               :  (name)=>{
+                                        return mongoose.model(name,new mongoose.Schema({
+                                            teacher_id: {
+                                                type:Number,
+                                                required:true
+                                            },
+                                            password:{
+                                                type:String,
+                                                required:true
+                                            }
+                                        }))
+                                    }
     
 
 }

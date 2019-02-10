@@ -17,7 +17,37 @@
         </div>
 
         <div ng-show="part[1]">
-            
+            <h3>Teachers controlled by {{selectedHeadTeacher}} with classes taught by those teachers</h3>
+            <div ng-if="teachers.length>0">
+                <ul ng-repeat="teacher in teachers">
+                    <li>{{teacher.teacher_name}}
+                        <ul ng-repeat="class in teacher.class_ids">
+                            <li><a href="" ng-click="getStudentInfo(teacher, class[0])">{{class[0].class}} - {{class[0].section}}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div ng-if="teachers.length==0">
+                No teachers under this head teacher<br>
+            </div>
+            <button ng-click="goBack()">Back</button>
+        </div>
+
+        <div ng-show="part[2]">
+            <h3>Students Under {{selectedTeacher.teacher_name}} from class {{selectedClass.class}}-{{selectedClass.section}}</h3>
+            <table>
+                <tr>
+                    <th>Roll No.</th>
+                    <th>Student Name</th>
+                    <th>Remark</th>
+                </tr>
+                <tr ng-repeat="singleStudent in students | orderBy:roll_no">
+                    <td>{{singleStudent.roll_no}}</td>
+                    <td>{{singleStudent.student_name}}</td>
+                    <td>{{singleStudent.remark[selectedTeacher.teacher_id]}}</td>
+                </tr>
+            </table>
+            <button ng-click="goBack()">Back</button>
         </div>
     </div>
 </div>

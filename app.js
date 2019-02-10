@@ -15,8 +15,65 @@ mongoose.connect();
 
 var class_ids_model=mongoose.classIdModel('class_ids');
 var teachers_model=mongoose.teachersModel('teachers');
-var students_model=mongoose.studentsModel('students');
-  
+var students_model=mongoose.studentsModel('students2');
+var login_model=mongoose.loginModel('logins');  
+
+app.post('/addLogin',(req,res)=>{
+    var data=req.body;
+    var loginInstance=new login_model({
+        teacher_id:data.teacherId,
+        password:data.password
+    });
+
+    loginInstance.save()
+    .then((resp)=>{
+        res.json({
+            message:'SavedLoginInfo'
+        })
+    },err=>{
+        console.log(err);
+        res.json({message:'error encountered'});
+    })
+})
+
+app.post('/checkLogin',(req,res)=>{
+    var data=req.body;
+    console.log("PASS : "+data.password)
+    login_model.find({
+        teacher_id:data.teacherId,
+        password:data.password
+    })
+    .then(function(resp){
+        if(resp.length==0){
+            res.json({message:'noTeacherFound'});
+        }else{
+            res.json({message:'logged'})
+        }
+    },err=>{
+        res.json({message:'error during login'});
+    })
+})
+
+app.post('/recordRemark',(req,res)=>{
+    var data=req.body;
+    var obj={[data.teacherId]:data.remark};
+    students_model.updateOne({
+        class_id:data.classId,
+        roll_no:data.rollNo,
+    },{
+        $push:{
+            remark:obj                        //new feature to replace the key with a varible value in JS
+        }
+    })
+    .then(function(resp){
+        res.json({
+            message:'updated'
+        })
+    },err=>{
+        console.log(err);
+    })
+})
+
 
 app.post('/recordClassIds',function(req,res){
     var data=req.body;
@@ -44,6 +101,51 @@ app.post('/recordClassIds',function(req,res){
     
 
     //}) 
+})
+
+app.get('/classIds',(req,res)=>{
+    var classIdArr=url.parse(req.url,true).query.classIdArray,arr=[],i=0;
+    //classIdArr=JSON.parse(classIdArr);
+    console.log(classIdArr);
+    
+    classIdArr.forEach((val,index)=>{
+
+        class_ids_model.find({
+            class_id:val
+        })
+        .then((resp)=>{
+            arr.push(resp);
+            i++;
+            if(i==classIdArr.length){res.json(arr);}
+        },err=>{
+            console.log(err);
+        });
+
+        
+    });
+    
+    
+});
+
+app.get('/getTeacherViaId',(req,res)=>{
+    var id=url.parse(req.url,true).query.teacherId;
+    teachers_model.find({
+        teacher_id:id
+    })
+    .then(function(resp){
+        res.json(resp);
+    },err=>{
+        console.log(err);
+    })
+})
+
+app.get('/getStudentsViaClassIds',(req,res)=>{
+    var classId=url.parse(req.url,true).query.classId;
+
+    students_model.find({class_id:classId})
+    .then(function(data){
+        res.json(data);
+    })
 })
 
 app.post('/addTeachers',(req,res)=>{
@@ -159,7 +261,8 @@ app.post('/addStudent',(req,res)=>{
         var students_info=new students_model({
             roll_no:data.rollNo,
             student_name:data.studentName,
-            class_id:data.id
+            class_id:id,
+            remark:{0:"no remark"}
         })
     
         students_info.save()
@@ -181,7 +284,6 @@ app.post('/addStudent',(req,res)=>{
 app.get('/uniqueStudent',(req,res)=>{
     var url_parts = url.parse(req.url, true);
     var query = url_parts.query;
-
     var clss=query.class;
     var section=query.section;
     var roll=query.rollNo;
@@ -218,25 +320,40 @@ app.get('/allStudents',(req,res)=>{
     var query=url_query.query;
 
     var teacherName=query.teacherName;
-    var stu=[];
+    var stu=[],i=0;
     teachers_model.find({
         teacher_name:teacherName
     }).then(function(res1){
         var tData=res1[0].class_ids;
         
         console.log(tData);
-        tData.forEach(function(val){
+
+       tData.forEach(function(val){
             students_model.find({
                 class_id:val
             }).then(function(res2){
-                res2.forEach(function(value){
-                    stu.push(value);
+                //console.log("RES : "+res2);
+                
+                res2.forEach(function(val){
+                    stu.push(val);
                 })
+                
+                
+                i++;
+                if(i==tData.length){
+                    console.log("STU : "+stu);
+
+                    res.json(stu);
+                  
+                }               
             },function(err){
                 throw err;
             })
-        })
-        res.json(stu);
+       })
+            
+       
+        
+       
     },function(err){
         throw err;
     
@@ -256,8 +373,9 @@ app.get('/coordinators',(req,res)=>{
 });
 
 app.get("/classes",(req,res)=>{
-    var teacher=req.body.teacherName;
-
+    var teacher=url.parse(req.url,true).query.teacherName;
+    
+    console.log(teacher);
     teachers_model.find({teacher_name:teacher})
     .then(resp=>{
         var classIds=resp[0].class_ids;
@@ -275,10 +393,47 @@ app.get("/classes",(req,res)=>{
                 }
             });
         
+        },error=>{
+            console.log(error);
         })
         
         
+    },err=>{
+        console.log(err);
     })
+})
+
+app.get("/teachOfCoor",(req,res)=>{
+    var teacherId=Number(url.parse(req.url,true).query.teacherId);
+    console.log(teacherId);
+    teachers_model.find({teacher_head_id:teacherId})
+    .then(data=>{
+        //data='['+data+']';
+        console.log(data);
+        if(data==null){
+            res.json({
+                message:"No teacher under this coordinator"
+            })
+        }
+        //var info;
+        for(var i=0; i<data.length; i++){                               //foreach doesn't break
+            if(data[i].teacher_id==data[i].teacher_head_id){
+                return {
+                    data:data,
+                    index:i,
+                };
+            }
+        }
+        
+    })
+    .then(obj=>{       
+        obj.data.splice(obj.index);
+        res.json(obj.data);
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+    
 })
 
 
